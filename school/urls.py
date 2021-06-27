@@ -13,14 +13,32 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from students.views import Students
-from classes.views import Classes, oneClass
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from classes.views import ClassViewSet, Classes
 from django.contrib import admin
+from rest_framework.routers import DefaultRouter
 from django.urls import path
 
+
+from students.views import StudentViewSet
+
+router = DefaultRouter()
+router.register('students', StudentViewSet)
+router.register('classes', ClassViewSet)
+
+
+class StudentGenericView:
+    pass
+
+
 urlpatterns = [
-    path('', Classes),
-    path('class/<id>', oneClass),
-    path('students/', Students),
+    path('', Classes.as_view()),
+    # path('class/<id>', oneClass.as_view()),
+    # path('students/', Students.as_view()),
     path('admin/', admin.site.urls),
-]
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('hola/', StudentGenericView.as_view()),
+    # path('hola/<int:pk>/', DetailStudentGenericView.as_view()),
+] + router.urls
